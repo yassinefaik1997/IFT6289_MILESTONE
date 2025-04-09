@@ -21,7 +21,7 @@ import os
 import matplotlib.pyplot as plt
 from statsmodels.tsa.regime_switching.markov_regression import MarkovRegression
 
-folder_path = os.path.join("stocks", "datasets", "dj30", "raw", "*.csv")
+folder_path = os.path.join("data", "data", "*.csv")
 csv_files = glob.glob(folder_path)
 data_frames = []
 

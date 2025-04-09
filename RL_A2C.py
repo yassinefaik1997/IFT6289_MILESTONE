@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 from statsmodels.tsa.regime_switching.markov_regression import MarkovRegression
 
 # path to folder containing csv files. Each files correspond to an asset (stock)
-folder_path = os.path.join("stocks", "datasets","dj30","raw", "*.csv")
+folder_path = os.path.join("data", "data", "*.csv")
 csv_files = glob.glob(folder_path)
 data_frames = []
 
@@ -39,8 +39,11 @@ for file in csv_files:
     df.rename(columns={'Adj Close': symbol}, inplace=True)
     data_frames.append(df)
 
+
 merged_df = pd.concat(data_frames, axis=1)
 merged_df.sort_index(inplace=True)
+
+print(merged_df) # [2259 rows x 29 columns]
 
 # non overlapping windows to compute correlation matrices
 log_returns = np.log(merged_df / merged_df.shift(1)).dropna()
@@ -121,6 +124,8 @@ dummy_dates = pd.date_range(start="2018-01-01", periods=combined_simulations.sha
 asset_names = [f"Stock{i+1}" for i in range(combined_simulations.shape[2])]
 train_episode_df = pd.DataFrame(combined_simulations[np.random.choice(combined_simulations.shape[0])],
                                 index=dummy_dates, columns=asset_names)
+print(combined_simulations.shape) #(4000, 253, 29)
+print(train_episode_df) #[253 rows x 29 columns]
 
 class PortfolioEnv:
     def __init__(self, price_data, window_obs=60, window_state=120):
@@ -246,7 +251,7 @@ def train_agent(policy_net, optimizer, actions, combined_simulations, num_episod
         train_episode_df = pd.DataFrame(combined_simulations[episode_idx],
                                         index=dummy_dates, columns=asset_names)
         
-        #new env for each episode
+        # new env for each episode
         env = PortfolioEnv(train_episode_df, window_obs=window_obs, window_state=window_state)
         state = env.reset()
         
