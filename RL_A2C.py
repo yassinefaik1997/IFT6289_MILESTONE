@@ -130,10 +130,10 @@ print(train_episode_df) #[253 rows x 29 columns]
 class PortfolioEnv:
     def __init__(self, price_data, window_obs=60, window_state=120):
         # price_data: df with one simulation trajectory.
-        self.price_data = price_data.reset_index(drop=True)
+        self.price_data = price_data.reset_index(drop=True)  # [253 rows x 29 columns]
         self.window_obs = window_obs  # observations are asset returns (log returns) on the window_obs !
         self.window_state = window_state
-        self.n_assets = price_data.shape[1]
+        self.n_assets = price_data.shape[1] # 29 assets
         self.reset()
     
     def reset(self):
@@ -249,7 +249,7 @@ def train_agent(policy_net, optimizer, actions, combined_simulations, num_episod
         dummy_dates = pd.date_range(start="2018-01-01", periods=combined_simulations.shape[1], freq="B")
         asset_names = [f"Stock{i+1}" for i in range(combined_simulations.shape[2])]
         train_episode_df = pd.DataFrame(combined_simulations[episode_idx],
-                                        index=dummy_dates, columns=asset_names)
+                                        index=dummy_dates, columns=asset_names) # [253 rows x 29 columns]
         
         # new env for each episode
         env = PortfolioEnv(train_episode_df, window_obs=window_obs, window_state=window_state)
@@ -261,21 +261,21 @@ def train_agent(policy_net, optimizer, actions, combined_simulations, num_episod
         done = False
         #run for each episode
         while not done:
-            obs, port_state = state
-            policy_logits, value = policy_net(obs, port_state)
-            probs = F.softmax(policy_logits, dim=1)
-            m = torch.distributions.Categorical(probs)
+            obs, port_state = state # obs shape: (1, 29, 60), port_state shape: (1, 1, 120)
+            policy_logits, value = policy_net(obs, port_state) # policy_logits shape: (1, 50), value shape: (1, 1)
+            probs = F.softmax(policy_logits, dim=1) # (1, 50)
+            m = torch.distributions.Categorical(probs) # shape: (1, 50)
             action_idx = m.sample()
-            log_prob = m.log_prob(action_idx)
+            log_prob = m.log_prob(action_idx) 
             value = value.squeeze(1)
-            action = actions[action_idx.item()]
-            
+            action = actions[action_idx.item()] # (29)
+
             next_state, reward, done, _ = env.step(action)
             log_probs.append(log_prob)
             values.append(value)
             rewards.append(reward)
             state = next_state
-        
+            
         #discounted returns.
         R = 0
         returns = []
