@@ -62,26 +62,6 @@ def run_dynamic_backtest(evaluation_data: pd.DataFrame,
                          beta: float = BETA,
                          period: int = SENTIMENT_PERIOD,
                          device: str = DEVICE) -> Optional[pd.DataFrame]:
-    """
-    Runs the backtest with dynamic agent switching based on sentiment.
-
-    Args:
-        evaluation_data (pd.DataFrame): Prepared historical data with prices, returns,
-                                         'Sentiment', 'PeriodSentiment'. Index must be DatetimeIndex.
-                                         Stock features must have MultiIndex columns.
-        agent_classes (dict): Dictionary mapping agent names (e.g., "DDPG") to their classes.
-        agent_paths (dict): Dictionary mapping agent names to saved model file paths.
-        validation_metric_fn (callable): Function like calculate_chi_score(portfolio_values, alpha=...).
-        env_class (class): The PortfolioEnvHistorical class.
-        alpha (float): Weight for Sharpe in Chi score.
-        beta (float): Sentiment change threshold.
-        period (int): Length of sentiment evaluation period.
-        device (str): Device ('cpu' or 'cuda').
-
-    Returns:
-        pd.DataFrame: DataFrame with portfolio history and active agent info, indexed by Date.
-                      Returns None if errors occur during setup.
-    """
 
     print("--- Starting Dynamic Backtest ---")
 
